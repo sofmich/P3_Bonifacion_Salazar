@@ -184,7 +184,7 @@ static usb_status_t USB_DeviceHidMouseAction(void)
     switch (dir)
     {
         case RIGHT:
-            /* Move right. Increase X value. */
+            /* Move right. Increase  value. */
             g_UsbDeviceHidMouse.buffer[1] = 2U;
             g_UsbDeviceHidMouse.buffer[2] = 0U;
             x++;
