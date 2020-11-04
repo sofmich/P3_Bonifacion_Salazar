@@ -263,5 +263,6 @@ uint8_t movetoLeft(uint8_t *hid_buffer);
 uint8_t copyLeftToRigth(uint8_t *hid_buffer);
 uint8_t openPaint(uint8_t * bufferKey);
 uint8_t openTxt(int8_t * bufferKey);
-
+uint8_t writeTxt(uint8_t * bufferKey);
+uint8_t copyTxt(uint8_t * bufferKey);
 #endif /* MOVEMENTS_H_ */
