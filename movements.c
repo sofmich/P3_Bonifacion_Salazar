@@ -6,7 +6,7 @@
  */
 
 #include "movements.h"
-
+#include "stdio.h"
 
 
 static int8_t x = 40U;
@@ -244,45 +244,60 @@ uint8_t writeTxt(uint8_t * bufferKey)
 	 static uint8_t dir = step1;
 	 bufferKey[1] = 0x00U;
 	 bufferKey[3] = 0x00U;
-	 switch(dir)
+	 if(running == flag)
 	 {
-	 case(step1):
-	{
-		 bufferKey[1] = 0x00;
-		 bufferKey[3] = 0x00;
-		 dir++;
-	}
-	 break;
-	 case(step2):
-	{
-		 bufferKey[3] = KEY_H;
-		 dir++;
-	}
-	break;
-	 case(step3):
-	{
-		 bufferKey[3] = KEY_O;
-		 dir++;
-	}
-	 break;
-	 case(step4):
-	{
-		 bufferKey[3] = KEY_L;
-		 dir++;
-	}
-	 break;
-	 case(step5):
-	{
-		 bufferKey[3] = KEY_A;
-		 dir++;
-		 flag = ready;
-		 dir = step1;
-		 delay(20000000);
-	}
-	 break;
-	 default:
+	 switch(dir)
+		 {
+		 case(step1):
+		{
+			 bufferKey[1] = 0x00;
+			 bufferKey[3] = 0x00;
+			 dir++;
+		}
 		 break;
+		 case(step2):
+		{
+			 bufferKey[3] = KEY_H;
+			 dir++;
+		}
+		break;
+		 case(step3):
+		{
+			 bufferKey[3] = KEY_O;
+			 dir++;
+		}
+		 break;
+		 case(step4):
+		{
+			 bufferKey[3] = KEY_L;
+			 dir++;
+		}
+		 break;
+		 case(step5):
+		{
+			 bufferKey[3] = KEY_A;
+			 dir ++;
+		}
+		 break;
+		 case(step6):
+					{
+			 bufferKey[1] = 0x00U;
+			 bufferKey[3] = 0x00U;
+			 dir ++;
+					}
+		 break;
+		 case(step7):
+		{
+			 printf("LLEGAMOS ACÁ");
+			 flag = ready;
+			 dir = step1;
+		}
+		 break;
+		 default:
+			 break;
+		 }
 	 }
+
 	 return flag;
 }
 
@@ -292,31 +307,31 @@ uint8_t selectCopy(uint8_t * bufferKey)
 	static uint8_t dir = step1;
 	bufferKey[1] = 0x00U;
 	bufferKey[3] = 0x00U;
-	switch(dir)
+	if(running == flag)
 	{
-	case(step1):
-		delay(20000000);
-		bufferKey[1] = KEY_LEFTCONTROL;
+		switch(dir)
+		{
+		case(step1):
+		bufferKey[1] = MODIFERKEYS_LEFT_CTRL;
 		bufferKey[3] = KEY_A;
-		delay(20000000);
 		dir++;
-	break;
-	case(step8):
-		delay(20000000);
-		bufferKey[1] = KEY_LEFTCONTROL;
+		break;
+		case(step2):
+		bufferKey[1] = MODIFERKEYS_LEFT_CTRL;
 		bufferKey[3] = KEY_C;
 		delay(20000000);
 		dir++;
-	break;
-	case(step9):
+		break;
+		case(step3):
 		bufferKey[1] = 0x00;
 		bufferKey[3] = 0x00;
 		flag = ready;
 		dir = step1;
-	break;
+		delay(20000000);
+		break;
 
+		}
 	}
-
 	return flag;
 }
 
@@ -337,7 +352,7 @@ uint8_t pasteTxt(uint8_t * bufferKey)
 	break;
 	case(step2):
 		delay(20000000);
-		bufferKey[1] = KEY_LEFTCONTROL;
+		bufferKey[1] = MODIFERKEYS_LEFT_CTRL;
 		bufferKey[3] = KEY_V;
 		delay(20000000);
 		dir++;
