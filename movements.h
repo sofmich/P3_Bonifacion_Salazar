@@ -9,7 +9,6 @@
 
 #include "FreeRTOS.h"
 
-
 #define CLICK 0x01
 /*Key Code*/
 #define KEY_ERRORROLLOVER 0x01U
@@ -240,29 +239,22 @@
 #define MODIFERKEYS_RIGHT_ALT 0x40U
 #define MODIFERKEYS_RIGHT_GUI 0x80U
 
-typedef enum{
-	step1,
-	step2,
-	step3,
-	step4,
-	step5,
-	step6,
-	step7,
-	step8,
-	step9,
-	step10
-}machine_status;
 
-typedef enum{
-	running,
-	ready
-}flag_status;
+#define KEYBOARD_DELAY 	2000000U
+#define MOUSE_DELAY 	10000U
+
+
+typedef enum {step1, step2, step3, step4, step5, step6, step7, step8, step9, step10, step11, step12, step13, step14, step15} machine_status;
+
+typedef enum {running, ready} flag_status;
 
 uint8_t drawNumber6(uint8_t *hid_buffer);
 uint8_t movetoLeft(uint8_t *hid_buffer);
 uint8_t copyLeftToRigth(uint8_t *hid_buffer);
 uint8_t openPaint(uint8_t * bufferKey);
-uint8_t openTxt(int8_t * bufferKey);
+uint8_t openTxt(uint8_t * bufferKey);
 uint8_t writeTxt(uint8_t * bufferKey);
-uint8_t copyTxt(uint8_t * bufferKey);
+uint8_t pasteTxt(uint8_t * bufferKey);
+uint8_t selectCopy(uint8_t * bufferKey);
+void delay(uint32_t max);
 #endif /* MOVEMENTS_H_ */

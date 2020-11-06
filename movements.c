@@ -7,50 +7,49 @@
 
 #include "movements.h"
 
-#define KEYBOARD_DELAY 	400000U
-#define MOUSE_DELAY 	10000U
-
 
 
 static int8_t x = 40U;
 static int8_t y = 0U;
-static uint8_t dir = step1;
-static uint8_t status = step1;
+//static uint8_t dir = step1;
 
-void delay(uint32_t max) {
+void delay(uint32_t max)
+{
 	uint32_t delay_counter = 0;
 	while (max > delay_counter)
 		delay_counter++;
 }
 
-
-
 uint8_t openPaint(uint8_t * bufferKey)
 {
-	 static int x = 0U;
-	 static uint8_t flag = running;
+	static uint8_t flag = running;
+	static uint8_t keys_array[] = {0x00, MODIFERKEYS_LEFT_CTRL, KEY_ESCAPE, KEY_P, KEY_A, KEY_I, KEY_N, KEY_T, KEY_ENTER};
+	static uint8_t dir = step1;
+	bufferKey[1] = 0x00U;
+	bufferKey[3] = 0x00U;
+	if(running == flag)
+	{
+		if(step2 == dir)
+		{
+			bufferKey[1] = keys_array[dir];
+			bufferKey[3] = keys_array[dir + 1];
+			dir++;
+		}
+		else
+		{
+			bufferKey[3] = keys_array[dir];
+		}
 
-	 static uint8_t dir = step1;
-	 static uint8_t keys_array[] = {KEY_RIGHT_GUI, KEY_P, KEY_A, KEY_I, KEY_N, KEY_T, KEY_ENTER};
-
-	 bufferKey[2] = 0x00U;
-	 if(flag == 0)
-	 {
-		 x++;
-		 if (x > 200U)
-		 {
-			 bufferKey[2] = keys_array[dir];
-			 dir++;
-			 x = 0;
-			 if(dir == 8)
-			 {
-				 dir = step1;
-				 flag = ready;
-				 bufferKey[2] = 0x00U;
-			 }
-		 }
-	 }
-	 return flag;
+		dir++;
+		if(dir == step12)
+		{
+			dir = step1;
+			flag = ready;
+			bufferKey[3] = 0x00U;
+		}
+	}
+	delay(KEYBOARD_DELAY);
+	return flag;
 }
 
 uint8_t  drawNumber6(uint8_t *hid_buffer)
@@ -58,17 +57,17 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 
 	static int8_t x = 99U;
 	static int8_t y = 0U;
-
-	static uint8_t dir = step3;
 	static uint8_t done = -1;
 	static uint8_t flag = running;
+	static uint8_t dir = step3;
+
 	switch (dir)
 	{
 	case step1:
 		/* Move right. Increase X value. */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = 2U;
-		hid_buffer[2] = 0U;
+		hid_buffer[1] = 1U;
+		hid_buffer[2] = 2U;
+		hid_buffer[3] = 0U;
 		x++;
 		if (x > 99U)
 		{
@@ -77,9 +76,9 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 		break;
 	case step2:
 		/* Move down. Increase Y value. */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = 0U;
-		hid_buffer[2] = 2U;
+		hid_buffer[1] = 1U;
+		hid_buffer[2] = 0U;
+		hid_buffer[3] = 2U;
 		y++;
 		if (y > 200U)
 		{
@@ -88,9 +87,9 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 		break;
 	case step3:
 		/* Move left. Discrease X value. */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = (uint8_t)(-2);
-		hid_buffer[2] = 0U;
+		hid_buffer[1] = 1U;
+		hid_buffer[2] = (uint8_t)(-2);
+		hid_buffer[3] = 0U;
 		x--;
 
 		if (x < 2U)
@@ -106,9 +105,9 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 		break;
 	case step4:
 		/* Move up. Discrease Y value. */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = 0U;
-		hid_buffer[2] = (uint8_t)(-2);
+		hid_buffer[1] = 1U;
+		hid_buffer[2] = 0U;
+		hid_buffer[3] = (uint8_t)(-2);
 		y--;
 		if (y < 70U)
 		{
@@ -117,9 +116,9 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 		break;
 	case step5:
 		/* IDLE status */
-		hid_buffer[0] = 0U;
 		hid_buffer[1] = 0U;
 		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		done ++;
 		if(ready == done)
 		{
@@ -132,23 +131,19 @@ uint8_t  drawNumber6(uint8_t *hid_buffer)
 	return flag;
 }
 
-
-
-
 uint8_t movetoLeft(uint8_t *hid_buffer)
 {
 	static int8_t x = 150U;
 	static int8_t y = 0U;
-
-	static uint8_t dir = step1;
 	static uint8_t flag = running;
+	static uint8_t dir = step1;
 	switch (dir)
 	{
 	case step1:
 		/* Move left. Discrease X value. */
-		hid_buffer[0] = 0U;
-		hid_buffer[1] = (uint8_t)(-8);
-		hid_buffer[2] = 0U;
+		hid_buffer[1] = 0U;
+		hid_buffer[2] = (uint8_t)(-8);
+		hid_buffer[3] = 0U;
 		x--;
 		if (x < 2U)
 		{
@@ -157,152 +152,219 @@ uint8_t movetoLeft(uint8_t *hid_buffer)
 		break;
 	case step2:
 		/* Do not move. Make click */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = 0U;
+		hid_buffer[1] = 1U;
 		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		dir = step3;
 		break;
 	case step3:
 		/* Stop the click */
-		hid_buffer[0] = 0U;
 		hid_buffer[1] = 0U;
 		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		dir = step4;
 	case step4:
+		/* Stop the click */
+		hid_buffer[1] = 0U;
+		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		flag = ready;
+		dir = step1;
 		break;
 	default:
 		break;
 	}
 	return flag;
-
 }
-uint8_t openTxt(int8_t * bufferKey)
+
+uint8_t openTxt(uint8_t * bufferKey)
 {
-	 static int x = 0U;
-		 static uint8_t flag = running;
-
-		 static first_notepad = 0;
-		 static uint8_t dir = step1;
-		 static uint8_t keys_array[] = {KEY_LEFT_GUI, KEY_N, KEY_O, KEY_T, KEY_E, KEY_P, KEY_A, KEY_D, KEY_ENTER, KEY_LEFT_GUI};
-
-		 bufferKey[2] = 0x00U;
-		 if(flag == 0)
+	 static uint8_t flag = running;
+	 static uint8_t notepad = 1;
+	 static uint8_t keys_array[] = {0x00, MODIFERKEYS_LEFT_CTRL, KEY_ESCAPE, KEY_N, KEY_O, KEY_T, KEY_E, KEY_P, KEY_A, KEY_D, KEY_ENTER, 0x00};
+	 static uint8_t dir = step1;
+	 bufferKey[1] = 0x00U;
+	 bufferKey[3] = 0x00U;
+	 if(running == flag)
+	 {
+		 if(step13 != dir)
 		 {
-			 x++;
-			 if (x > 200U)
+			 if(step2 == dir)
 			 {
-				 if(dir== step1)
-				 {
-					 bufferKey[3] = KEY_R;
-				 }
-				 if(dir == step9)
-				 {
-					 /*Windows + left*/
-					 if(first_notepad == 0) bufferKey[3] = KEY_LEFTARROW;
-					 if(first_notepad == 1) bufferKey[3] = KEY_RIGHTARROW;
-				 }
-				 bufferKey[2] = keys_array[dir];
+				 bufferKey[1] = keys_array[dir];
+				 bufferKey[3] = keys_array[dir + 1];
+				 delay(KEYBOARD_DELAY);
 				 dir++;
-				 x = 0;
-				 if(dir == 12)
+			 }
+			 else
+			 {
+				 bufferKey[3] = keys_array[dir];
+				 delay(KEYBOARD_DELAY);
+				 dir++;
+				 if(step15 == dir)
 				 {
-					 first_notepad ++;
+					 bufferKey[1] = 0x00;
+					 bufferKey[3] = 0x00;
 					 dir = step1;
-					 if(first_notepad == 2)
-					 {
-						 flag = ready;
-					 }
-					 bufferKey[2] = 0x00U;
+					 flag = ready;
 				 }
 			 }
 		 }
-		 return flag;
+		 else
+		 {
+			 if(1 == notepad)
+			 {
+				 /* Windows + left */
+				 delay(20000000);
+				 bufferKey[1] = MODIFERKEYS_LEFT_GUI;
+				 bufferKey[3] = KEY_LEFTARROW;
+				 delay(20000000);
+				 notepad++;
+				 dir = step1;
 
+			 }
+			 else
+			 {
+				 /* Windows + right */
+				 delay(20000000);
+				 bufferKey[1] = MODIFERKEYS_LEFT_GUI;
+				 bufferKey[3] = KEY_RIGHTARROW;
+				 delay(20000000);
+				 notepad = 1;
+				 dir ++;
+			 }
+		 }
+	 }
+	 return flag;
 }
 
 uint8_t writeTxt(uint8_t * bufferKey)
 {
-	 static int x = 0U;
 	 static uint8_t flag = running;
-
 	 static uint8_t dir = step1;
-	 static uint8_t keys_array[] = {KEY_A, KEY_U, KEY_X, KEY_I, KEY_L, KEY_I, KEY_O, KEY_LEFTCONTROL, KEY_LEFTCONTROL};
-
-	 bufferKey[2] = 0x00U;
-	 if(flag == 0)
+	 bufferKey[1] = 0x00U;
+	 bufferKey[3] = 0x00U;
+	 switch(dir)
 	 {
-		 x++;
-		 if (x > 200U)
-		 {
-			 bufferKey[2] = keys_array[dir];
-			 dir++;
-			 x = 0;
-			 if(dir == 8)
-			 {
-				 bufferKey[3] = KEY_A;
-			 }
-			 if(dir = 9)
-			 {
-				 bufferKey[3] = KEY_C;
-			 }
-			 if(dir == 10)
-			 {
-				 dir = step1;
-				 flag = ready;
-				 bufferKey[2] = 0x00U;
-			 }
-		 }
+	 case(step1):
+	{
+		 bufferKey[1] = 0x00;
+		 bufferKey[3] = 0x00;
+		 dir++;
+	}
+	 break;
+	 case(step2):
+	{
+		 bufferKey[3] = KEY_H;
+		 dir++;
+	}
+	break;
+	 case(step3):
+	{
+		 bufferKey[3] = KEY_O;
+		 dir++;
+	}
+	 break;
+	 case(step4):
+	{
+		 bufferKey[3] = KEY_L;
+		 dir++;
+	}
+	 break;
+	 case(step5):
+	{
+		 bufferKey[3] = KEY_A;
+		 dir++;
+		 flag = ready;
+		 dir = step1;
+		 delay(20000000);
+	}
+	 break;
+	 default:
+		 break;
 	 }
 	 return flag;
 }
 
-uint8_t copyTxt(uint8_t * bufferKey)
+uint8_t selectCopy(uint8_t * bufferKey)
 {
-	 static int x = 0U;
-	 static uint8_t flag = running;
+	static uint8_t flag = running;
+	static uint8_t dir = step1;
+	bufferKey[1] = 0x00U;
+	bufferKey[3] = 0x00U;
+	switch(dir)
+	{
+	case(step1):
+		delay(20000000);
+		bufferKey[1] = KEY_LEFTCONTROL;
+		bufferKey[3] = KEY_A;
+		delay(20000000);
+		dir++;
+	break;
+	case(step8):
+		delay(20000000);
+		bufferKey[1] = KEY_LEFTCONTROL;
+		bufferKey[3] = KEY_C;
+		delay(20000000);
+		dir++;
+	break;
+	case(step9):
+		bufferKey[1] = 0x00;
+		bufferKey[3] = 0x00;
+		flag = ready;
+		dir = step1;
+	break;
 
-	 static uint8_t dir = step1;
-	 static uint8_t keys_array[] = {KEY_LEFTCONTROL, KEY_ENTER};
+	}
 
-	 bufferKey[2] = 0x00U;
-	 if(flag == 0)
-	 {
-		 x++;
-		 if (x > 200U)
-		 {
-			 bufferKey[2] = keys_array[dir];
-			 dir++;
-			 x = 0;
-			 if(dir == 1)
-			 {
-				 bufferKey[3] = KEY_V;
-			 }
-			 if(dir == 3)
-			 {
-				 dir = step1;
-				 flag = ready;
-				 bufferKey[2] = 0x00U;
-			 }
-		 }
-	 }
-	 return flag;
+	return flag;
+}
+
+uint8_t pasteTxt(uint8_t * bufferKey)
+{
+	static uint8_t flag = running;
+	static uint8_t dir = step1;
+	bufferKey[1] = 0x00U;
+	bufferKey[3] = 0x00U;
+	switch(dir)
+	{
+	case(step1):
+				{
+		bufferKey[1] = 0x00;
+		bufferKey[3] = 0x00;
+		dir++;
+				}
+	break;
+	case(step2):
+		delay(20000000);
+		bufferKey[1] = KEY_LEFTCONTROL;
+		bufferKey[3] = KEY_V;
+		delay(20000000);
+		dir++;
+	break;
+	case(step3):
+		bufferKey[1] = 0x00;
+		bufferKey[3] = 0x00;
+		dir = step1;
+		flag = ready;
+	break;
+	}
+	return flag;
 }
 
 uint8_t copyLeftToRigth(uint8_t *hid_buffer)
 {
 	static int8_t x = 255U;
 	static int8_t y = 0U;
-
-	static uint8_t dir = step1;
 	static uint8_t flag = running;
+	static uint8_t dir = step1;
 	switch (dir)
 	{
 	case step1:
 		/* Move left. Discrease X value. */
-		hid_buffer[0] = 0U;
-		hid_buffer[1] = 4U;
-		hid_buffer[2] = 0U;
+		hid_buffer[1] = 0U;
+		hid_buffer[2] = 4U;
+		hid_buffer[3] = 0U;
 		x--;
 		if (x < 2U)
 		{
@@ -311,19 +373,23 @@ uint8_t copyLeftToRigth(uint8_t *hid_buffer)
 		break;
 	case step2:
 		/* Do not move. Make click */
-		hid_buffer[0] = 1U;
-		hid_buffer[1] = 0U;
+		hid_buffer[1] = 1U;
 		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		dir = step3;
 		break;
 	case step3:
 		/* Stop the click */
-		hid_buffer[0] = 0U;
 		hid_buffer[1] = 0U;
 		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		dir = step4;
 		break;
 	case step4:
+		/* Stop the click */
+		hid_buffer[1] = 0U;
+		hid_buffer[2] = 0U;
+		hid_buffer[3] = 0U;
 		flag = ready;
 		break;
 	default:

@@ -69,6 +69,7 @@ extern void HW_TimerControl(uint8_t enable);
  ******************************************************************************/
 
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_MouseBuffer[USB_HID_MOUSE_REPORT_LENGTH];
+USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_KeyboardBuffer[USB_HID_KEYBOARD_REPORT_LENGTH];
 usb_hid_mouse_struct_t g_UsbDeviceHidMouse;
 
 extern usb_device_class_struct_t g_UsbDeviceHidMouseConfig;
@@ -171,27 +172,143 @@ void USB_DeviceTaskFn(void *deviceHandle)
 /* Update mouse pointer location. Draw a rectangular rotation*/
 static usb_status_t USB_DeviceHidMouseAction(void)
 {
-	if(ready != drawNumber6(g_UsbDeviceHidMouse.buffer))
-	{
-	    /* Send mouse report to the host */
-	    return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.buffer,
-	                             USB_HID_MOUSE_REPORT_LENGTH);
-	}
+	static uint8_t status = step1;
 
-	if(ready != movetoLeft(g_UsbDeviceHidMouse.buffer))
+	typedef struct{
+		 uint8_t openPaint;
+		 uint8_t draw6;
+		 uint8_t openTxt;
+		 uint8_t left;
+		 uint8_t write;
+		 uint8_t copy;
+		 uint8_t right;
+		 uint8_t paste;
+	} flags_t;
+
+	static flags_t flags;
+	/*Poner los buffers utilizados en cero*/
+	g_UsbDeviceHidMouse.keyboard_buffer[0] = 0x02U; /*REFRESHES KEYBOARD ID BUFFER*/
+	g_UsbDeviceHidMouse.keyboard_buffer[1] = 0x00U; /*REFRESHES KEYBOARD MODIFIER BUFFER*/
+	g_UsbDeviceHidMouse.keyboard_buffer[3] = 0x00U; /*REFRESHES KEYBOARD 1ST BYTE BUFFER*/
+	g_UsbDeviceHidMouse.keyboard_buffer[4] = 0x00U; /*REFRESHES KEYBOARD 2ND BYTE BUFFER*/
+	g_UsbDeviceHidMouse.mouse_buffer[0] = 0x01U; /*REFRESHES MOUSE ID BUFFER*/
+	g_UsbDeviceHidMouse.mouse_buffer[1] = 0x00U; /*REFRESHES MOUSE BUTTON BUFFER*/
+	g_UsbDeviceHidMouse.mouse_buffer[2] = 0x00U;/*REFRESHES MOUSE X BUFFER*/
+	g_UsbDeviceHidMouse.mouse_buffer[3] = 0x00U;/*REFRESHES MOUSE Y BUFFER*/
+
+
+	switch(status)
 	{
+	case(step1):
+	{
+		flags.openPaint = openPaint(g_UsbDeviceHidMouse.keyboard_buffer);
+		if(ready == flags.openPaint)
+		{
+			status ++;
+			delay(20000000);
+		}
 		/* Send mouse report to the host */
-		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.buffer,
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
+				USB_HID_KEYBOARD_REPORT_LENGTH);
+	}
+	break;
+	case(step2):
+	{
+		flags.draw6 = drawNumber6(g_UsbDeviceHidMouse.mouse_buffer);
+		if(ready == flags.draw6)
+		{
+			status ++;
+			delay(20000000);
+		}
+		/* Send mouse report to the host */
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.mouse_buffer,
+									USB_HID_MOUSE_REPORT_LENGTH);
+	}
+	break;
+	case(step3):
+			{
+		flags.openTxt = openTxt(g_UsbDeviceHidMouse.keyboard_buffer);
+		if(ready == flags.openTxt)
+		{
+			status ++;
+			delay(20000000);
+			delay(20000000);
+		}
+		/* Send mouse report to the host */
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
+						USB_HID_KEYBOARD_REPORT_LENGTH);
+			}
+	break;
+	case(step4):
+	{
+		flags.left = movetoLeft(g_UsbDeviceHidMouse.mouse_buffer);
+		if(ready == flags.left)
+		{
+			status ++;
+			delay(20000000);
+			delay(20000000);
+		}
+		/* Send mouse report to the host */
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.mouse_buffer,
 				USB_HID_MOUSE_REPORT_LENGTH);
 	}
-
-	if(ready != copyLeftToRigth(g_UsbDeviceHidMouse.buffer))
-	{
+	break;
+	case(step5):
+			{
+		flags.write = writeTxt(g_UsbDeviceHidMouse.keyboard_buffer);
+		if(ready == flags.write)
+		{
+			status ++;
+			delay(20000000);
+		}
 		/* Send mouse report to the host */
-		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.buffer,
-				USB_HID_MOUSE_REPORT_LENGTH);
-	}
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
+						USB_HID_KEYBOARD_REPORT_LENGTH);
+			}
+	break;
+	case(step6):
+			{
+		flags.copy = selectCopy(g_UsbDeviceHidMouse.keyboard_buffer);
+		if(ready == flags.copy)
+		{
+			status ++;
+			delay(20000000);
+		}
+		/* Send mouse report to the host */
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
+						USB_HID_KEYBOARD_REPORT_LENGTH);
+			}
+	break;
+	case(step7):
+		{
+			flags.right = copyLeftToRigth(g_UsbDeviceHidMouse.mouse_buffer);
+			if(ready == flags.right)
+			{
+				status ++;
+				delay(20000000);
+				delay(20000000);
+			}
+			/* Send mouse report to the host */
+			return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.mouse_buffer,
+					USB_HID_MOUSE_REPORT_LENGTH);
+		}
+		break;
 
+	case(step8):
+					{
+		flags.paste = pasteTxt(g_UsbDeviceHidMouse.keyboard_buffer);
+		if(ready == flags.paste)
+		{
+			status ++;
+			delay(20000000);
+		}
+		/* Send mouse report to the host */
+		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
+				USB_HID_KEYBOARD_REPORT_LENGTH);
+					}
+	break;
+
+	}
 }
 
 /* The hid class callback */
@@ -456,17 +573,18 @@ static void USB_DeviceApplicationInit(void)
 #endif /* FSL_FEATURE_SOC_SYSMPU_COUNT */
 
     /* Set HID mouse to default state */
-    g_UsbDeviceHidMouse.speed        = USB_SPEED_FULL;
-    g_UsbDeviceHidMouse.attach       = 0U;
-    g_UsbDeviceHidMouse.hidHandle    = (class_handle_t)NULL;
+    g_UsbDeviceHidMouse.speed = USB_SPEED_FULL;
+    g_UsbDeviceHidMouse.attach = 0U;
+    g_UsbDeviceHidMouse.hidHandle = (class_handle_t)NULL;
     g_UsbDeviceHidMouse.deviceHandle = NULL;
-    g_UsbDeviceHidMouse.buffer       = s_MouseBuffer;
+    g_UsbDeviceHidMouse.mouse_buffer = s_MouseBuffer;
+    g_UsbDeviceHidMouse.keyboard_buffer = s_KeyboardBuffer;
 
     /* Initialize the usb stack and class drivers */
     if (kStatus_USB_Success !=
         USB_DeviceClassInit(CONTROLLER_ID, &g_UsbDeviceHidConfigList, &g_UsbDeviceHidMouse.deviceHandle))
     {
-        usb_echo("USB device mouse failed\r\n");
+        usb_echo("USB device mouse and keyboard failed\r\n");
         return;
     }
     else
