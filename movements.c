@@ -325,11 +325,13 @@ uint8_t selectCopy(uint8_t * bufferKey)
 		case(step3):
 		bufferKey[1] = 0x00;
 		bufferKey[3] = 0x00;
+		dir++;
+		break;
+		case(step4):
 		flag = ready;
 		dir = step1;
 		delay(20000000);
 		break;
-
 		}
 	}
 	return flag;
@@ -341,29 +343,32 @@ uint8_t pasteTxt(uint8_t * bufferKey)
 	static uint8_t dir = step1;
 	bufferKey[1] = 0x00U;
 	bufferKey[3] = 0x00U;
-	switch(dir)
+	if(flag == running)
 	{
-	case(step1):
-				{
-		bufferKey[1] = 0x00;
-		bufferKey[3] = 0x00;
-		dir++;
-				}
-	break;
-	case(step2):
-		delay(20000000);
-		bufferKey[1] = MODIFERKEYS_LEFT_CTRL;
+		switch(dir)
+		{
+		case(step1):
+							{
+			bufferKey[1] = 0x00;
+			bufferKey[3] = 0x00;
+			dir++;
+							}
+		break;
+		case(step2):
+						bufferKey[1] = MODIFERKEYS_LEFT_CTRL;
 		bufferKey[3] = KEY_V;
-		delay(20000000);
 		dir++;
-	break;
-	case(step3):
-		bufferKey[1] = 0x00;
+		break;
+		case(step3):
+						bufferKey[1] = 0x00;
 		bufferKey[3] = 0x00;
 		dir = step1;
 		flag = ready;
-	break;
+		break;
+		}
+
 	}
+
 	return flag;
 }
 

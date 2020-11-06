@@ -299,8 +299,8 @@ static usb_status_t USB_DeviceHidMouseAction(void)
 		flags.paste = pasteTxt(g_UsbDeviceHidMouse.keyboard_buffer);
 		if(ready == flags.paste)
 		{
-			status ++;
 			delay(20000000);
+			break;
 		}
 		/* Send mouse report to the host */
 		return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.keyboard_buffer,
