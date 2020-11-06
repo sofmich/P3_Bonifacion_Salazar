@@ -360,9 +360,13 @@ uint8_t pasteTxt(uint8_t * bufferKey)
 		dir++;
 		break;
 		case(step3):
-						bufferKey[1] = 0x00;
+		bufferKey[1] = 0x00;
 		bufferKey[3] = 0x00;
-		dir = step1;
+		dir++;
+		
+
+		break;
+		default:
 		flag = ready;
 		break;
 		}
